@@ -3,7 +3,7 @@
 # Create .streamlit directory if it doesn't exist
 mkdir -p ~/.streamlit/
 
-# Create config.toml with server settings
+# Create config.toml with server settings (without port - handled by command line)
 cat > ~/.streamlit/config.toml <<EOF
 [general]
 email = ""
@@ -11,7 +11,6 @@ email = ""
 [server]
 headless = true
 enableCORS = false
-port = \$PORT
 
 [theme]
 primaryColor = "#0066FF"
