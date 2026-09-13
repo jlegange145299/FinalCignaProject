@@ -1,4 +1,4 @@
-from openai import OpenAI
+import openai
 import time
 import streamlit as st
 import requests
@@ -96,8 +96,8 @@ def generate_video(script):
 
     return video_url
 
-def get_ai_response(client, messages):
-    """Get response from OpenAI using Chat Completions API"""
+def get_ai_response(messages):
+    """Get response from OpenAI using Chat Completions API (v0.28.x style)"""
     try:
         system_message = {
             "role": "system",
@@ -119,8 +119,8 @@ def get_ai_response(client, messages):
         # Combine system message with conversation history
         full_messages = [system_message] + messages
         
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if you have access
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
             messages=full_messages,
             temperature=0.7,
             max_tokens=500
@@ -284,11 +284,9 @@ def show_main_app():
     if "start_chat" not in st.session_state:
         st.session_state.start_chat = False
     
-    # Initialize OpenAI client
-    st.session_state.client = OpenAI(api_key=api_key)
-    
-    if st.session_state.client:
-        st.session_state.start_chat = True
+    # Set OpenAI API key (v0.28.x style)
+    openai.api_key = api_key
+    st.session_state.start_chat = True
     
     # Modern dark theme CSS with blue palette
     st.markdown("""
@@ -631,7 +629,7 @@ def show_main_app():
 
             # Get AI response using Chat Completions API
             with st.spinner("Thinking..."):
-                ai_response = get_ai_response(st.session_state.client, st.session_state.messages)
+                ai_response = get_ai_response(st.session_state.messages)
             
             print(f"AI_RESPONSE: {ai_response}")
 
