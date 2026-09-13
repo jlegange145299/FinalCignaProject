@@ -8,7 +8,8 @@ import os
 
 load_dotenv()
 
-DID_API_ENV = os.getenv("DID_API")
+# Try to get D-ID API key from environment variable (Render) or .env file (local)
+DID_API_ENV = os.getenv("DID_API_KEY") or os.getenv("DID_API")
 
 def generate_video(script):
     """Generate D-ID talking avatar video"""
@@ -259,7 +260,15 @@ def show_welcome_screen():
 
 def show_main_app():
     """Display main chat application with modern dark theme"""
-    api_key = st.secrets["OPENAI_API_KEY"]
+    # Try to get API key from Streamlit secrets first, then from environment variable
+    try:
+        api_key = st.secrets["OPENAI_API_KEY"]
+    except:
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
+        st.error("OpenAI API key not found. Please configure OPENAI_API_KEY in environment variables.")
+        return
     video_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/baselinevideo2.mp4"   
     image2_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/2.png"
     image3_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/PDFcover.png"
