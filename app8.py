@@ -120,7 +120,7 @@ def get_ai_response(messages):
         full_messages = [system_message] + messages
         
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",  # Latest GPT-4 Omni model (faster and smarter)
             messages=full_messages,
             temperature=0.7,
             max_tokens=500
