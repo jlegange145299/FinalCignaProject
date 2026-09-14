@@ -291,6 +291,12 @@ def show_main_app():
     if "start_chat" not in st.session_state:
         st.session_state.start_chat = False
     
+    if "show_quote_form" not in st.session_state:
+        st.session_state.show_quote_form = False
+    
+    if "selected_plan" not in st.session_state:
+        st.session_state.selected_plan = None
+    
     # Set OpenAI API key (v0.28.x style)
     openai.api_key = api_key
     st.session_state.start_chat = True
@@ -430,7 +436,78 @@ def show_main_app():
         st.session_state.authenticated = False
         st.session_state.user_email = None
         st.session_state.messages = []
+        st.session_state.show_quote_form = False
+        st.session_state.selected_plan = None
         st.rerun()
+    
+    st.sidebar.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True)
+    
+    # Get a Quote Button
+    if st.sidebar.button("💰 Get a Quote", use_container_width=True, type="primary"):
+        st.session_state.show_quote_form = not st.session_state.show_quote_form
+        st.session_state.selected_plan = None
+    
+    # Quote Form
+    if st.session_state.show_quote_form:
+        st.sidebar.markdown('<div style="height: 8px;"></div>', unsafe_allow_html=True)
+        
+        st.sidebar.markdown("""
+            <div style='background: linear-gradient(135deg, #000066 0%, #000099 100%); 
+                        padding: 12px; border-radius: 8px; border: 1px solid #0066FF; margin-bottom: 12px;'>
+                <div style='color: #0066FF; font-size: 14px; font-weight: 700; margin-bottom: 8px;'>
+                    📋 INSURANCE QUOTE
+                </div>
+                <div style='color: #99BBFF; font-size: 12px;'>
+                    Select your coverage level:
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Plan selection
+        plan = st.sidebar.radio(
+            "Coverage Level:",
+            ["Bronze", "Silver", "Gold"],
+            key="plan_selection"
+        )
+        
+        if st.sidebar.button("Calculate Premium", use_container_width=True):
+            st.session_state.selected_plan = plan
+            st.rerun()
+        
+        # Display quote result
+        if st.session_state.selected_plan:
+            plan_prices = {
+                "Bronze": "$600",
+                "Silver": "$800", 
+                "Gold": "$1,000"
+            }
+            
+            premium = plan_prices[st.session_state.selected_plan]
+            
+            st.sidebar.markdown(f"""
+                <div style='background: linear-gradient(135deg, #003300 0%, #004400 100%); 
+                            padding: 16px; border-radius: 8px; border: 2px solid #00CC66; margin-bottom: 12px;'>
+                    <div style='text-align: center; margin-bottom: 12px;'>
+                        <div style='color: #00FF88; font-size: 12px; font-weight: 600; margin-bottom: 4px;'>
+                            {st.session_state.selected_plan.upper()} PLAN
+                        </div>
+                        <div style='color: #FFFFFF; font-size: 28px; font-weight: 700;'>
+                            {premium}
+                        </div>
+                        <div style='color: #99FFCC; font-size: 11px;'>
+                            per month
+                        </div>
+                    </div>
+                    <div style='border-top: 1px solid #00CC66; padding-top: 12px; margin-top: 12px;'>
+                        <div style='color: #99FFCC; font-size: 11px; line-height: 1.5;'>
+                            <strong>📌 Estimate Notice:</strong><br/>
+                            This premium is an estimate based on existing information on record for your account.
+                            <br/><br/>
+                            Before the policy is issued, you may need to provide additional details for a final binding quote.
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
     
     st.sidebar.markdown('<div style="height: 12px;"></div>', unsafe_allow_html=True) 
        
