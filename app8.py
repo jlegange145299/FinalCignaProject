@@ -127,8 +127,35 @@ def get_ai_response(messages):
         )
         
         return response.choices[0].message.content
-    except openai.error.AuthenticationError:
-        return "I apologize, but there's an authentication issue with the AI service. Please contact support."
+    except openai.error.AuthenticationError as e:
+        print(f"OpenAI Authentication Error: {e}")
+        # Try fallback to GPT-3.5-turbo
+        try:
+            print("Attempting fallback to gpt-3.5-turbo...")
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=full_messages,
+                temperature=0.7,
+                max_tokens=500
+            )
+            return response.choices[0].message.content
+        except:
+            return "I apologize, but there's an authentication issue with the AI service. Please verify your OpenAI API key has access to the requested model."
+    except openai.error.InvalidRequestError as e:
+        print(f"Invalid Request (likely model not available): {e}")
+        # Fallback to GPT-3.5-turbo
+        try:
+            print("Model not available, using gpt-3.5-turbo...")
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=full_messages,
+                temperature=0.7,
+                max_tokens=500
+            )
+            return response.choices[0].message.content
+        except Exception as fallback_error:
+            print(f"Fallback also failed: {fallback_error}")
+            return "I apologize, but I'm having trouble connecting to the AI service. Please try again."
     except openai.error.RateLimitError:
         return "I apologize, but we've reached our rate limit. Please try again in a moment."
     except openai.error.APIError as e:
@@ -276,6 +303,9 @@ def show_main_app():
     if not api_key:
         st.error("OpenAI API key not found. Please configure OPENAI_API_KEY in environment variables.")
         return
+    
+    # Set the OpenAI API key globally (required for v0.28.x)
+    openai.api_key = api_key
     video_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/baselinevideo2.mp4"   
     image2_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/2.png"
     image3_path = "https://photosfordidd.s3.eu-central-1.amazonaws.com/PDFcover.png"
@@ -297,8 +327,7 @@ def show_main_app():
     if "selected_plan" not in st.session_state:
         st.session_state.selected_plan = None
     
-    # Set OpenAI API key (v0.28.x style)
-    openai.api_key = api_key
+    # Enable chat after API key is set
     st.session_state.start_chat = True
     
     # Modern dark theme CSS with blue palette
