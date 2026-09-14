@@ -127,9 +127,16 @@ def get_ai_response(messages):
         )
         
         return response.choices[0].message.content
+    except openai.error.AuthenticationError:
+        return "I apologize, but there's an authentication issue with the AI service. Please contact support."
+    except openai.error.RateLimitError:
+        return "I apologize, but we've reached our rate limit. Please try again in a moment."
+    except openai.error.APIError as e:
+        print(f"OpenAI API Error: {e}")
+        return "I apologize, but I'm experiencing technical difficulties. Please try again."
     except Exception as e:
-        print(f"Error calling OpenAI: {e}")
-        return f"I apologize, but I encountered an error: {str(e)}"
+        print(f"Unexpected error calling OpenAI: {e}")
+        return "I apologize, but I encountered an unexpected error. Please try again or contact support."
 
 def show_welcome_screen():
     """Display welcome/login screen with ALICE branding"""
